@@ -1,0 +1,21 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+members = [".", "migration", "entity"]
+
+[dependencies]
+anyhow = "1.0.98"
+axum = "0.8.4"
+colorized = "1.0.0"
+dotenv = "0.15.0"
+sea-orm = { version = "1.1.11", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"]}
+tokio = { version = "1.45.0", features = ["full"] }
+tower-http = { version = "0.6.4", features = ["cors"] }
+migration = { path = "migration" }
+entity = { path = "entity" }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+
