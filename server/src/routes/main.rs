@@ -1,9 +1,12 @@
 use axum::{
     Extension, Router,
     http::{HeaderName, Method},
+    middleware,
 };
 use sea_orm::DatabaseConnection;
 use tower_http::cors::{Any, CorsLayer};
+
+use crate::core::logger::Logger;
 
 use super::note::NoteRouter;
 
@@ -25,5 +28,6 @@ impl MainRouter {
             .nest("/note", NoteRouter::new())
             .layer(Extension(db))
             .layer(cors)
+            .layer(middleware::from_fn(Logger::log_request_and_response))
     }
 }

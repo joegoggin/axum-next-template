@@ -1,4 +1,4 @@
-use axum::{Router, middleware::from_fn, routing::get};
+use axum::{Router, middleware, routing::get};
 
 use crate::{controllers::note::NoteController, middleware::note::NoteMiddleware};
 
@@ -13,7 +13,7 @@ impl NoteRouter {
                     .put(NoteController::update_note)
                     .delete(NoteController::delete_note),
             )
-            .layer(from_fn(NoteMiddleware::add_note_extension));
+            .layer(middleware::from_fn(NoteMiddleware::add_note_extension));
 
         Router::new()
             .route(

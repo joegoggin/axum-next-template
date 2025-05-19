@@ -1,11 +1,18 @@
-use axum::http::{HeaderMap, Method, StatusCode};
+use axum::{
+    body::{Body, to_bytes},
+    extract::Request,
+    http::{HeaderMap, Method, StatusCode},
+    middleware::Next,
+    response::{IntoResponse, Response},
+};
 use colorized::{Colors, colorize_print, colorize_println};
 use log::{Level, LevelFilter, Log, Metadata, Record, set_boxed_logger, set_max_level};
-use serde_json::{Value, json};
+use serde_json::{Value, from_str, json};
+use uuid::Uuid;
 
 use crate::traits::capitalize::Capitalize;
 
-use super::error::server_error_response::ServerErrorResponse;
+use super::error::server_error_response::{ServerErrorResponse, ServerResult};
 
 pub struct Logger;
 
@@ -188,8 +195,18 @@ impl Logger {
         }
     }
 
-    pub fn log_request(method: &Method, route: &str, headers: &HeaderMap, req_body: Option<Value>) {
+    pub fn log_request(
+        id: Uuid,
+        method: &Method,
+        route: &str,
+        headers: &HeaderMap,
+        req_body: Option<Value>,
+    ) {
         Self::log_h1("Request");
+
+        colorize_print("Request ID: ", Colors::CyanFg);
+        println!("{}\n", id);
+
         colorize_print(method.to_string() + " ", Colors::CyanFg);
         println!("{}", route);
 
@@ -202,8 +219,11 @@ impl Logger {
         }
     }
 
-    pub fn log_response(res_body: Option<Value>) {
+    pub fn log_response(id: Uuid, res_body: Option<Value>) {
         Self::log_h1("Response");
+
+        colorize_print("Request ID: ", Colors::CyanFg);
+        println!("{}\n", id);
 
         colorize_print("Status Code: ", Colors::CyanFg);
         colorize_println(format!("{}", StatusCode::OK), Colors::GreenFg);
@@ -237,6 +257,55 @@ impl Logger {
             }
             None => "".to_string(),
         }
+    }
+
+    pub async fn log_request_and_response(req: Request, next: Next) -> ServerResult<Response> {
+        let (parts, body) = req.into_parts();
+        let id = Uuid::new_v4();
+        let body_bytes = to_bytes(body, usize::MAX)
+            .await
+            .map_err(|error| ServerErrorResponse::new_internal_server_error(error))?;
+        let body_string = String::from_utf8_lossy(&body_bytes);
+
+        let method = &parts.method;
+        let headers = &parts.headers;
+
+        let route = &parts.uri.to_string();
+        let route = route.split("?").next().unwrap_or(route);
+
+        let req_body: Option<Value> = match method {
+            &Method::GET => None,
+            &Method::DELETE => None,
+            _ => match from_str::<Value>(&body_string) {
+                Ok(req_body) => Some(req_body),
+                Err(_) => None,
+            },
+        };
+
+        Logger::log_request(id, method, &route, headers, req_body);
+
+        let req = Request::from_parts(parts, Body::from(body_bytes.clone()));
+
+        let res = next.run(req).await.into_response();
+        let (parts, body) = res.into_parts();
+        let body_bytes = to_bytes(body, usize::MAX)
+            .await
+            .map_err(|error| ServerErrorResponse::new_internal_server_error(error))?;
+        let body_string = String::from_utf8_lossy(&body_bytes);
+        let status_code = &parts.status;
+
+        if status_code == &StatusCode::OK {
+            let res_body: Option<Value> = match from_str::<Value>(&body_string) {
+                Ok(req_body) => Some(req_body),
+                Err(_) => None,
+            };
+
+            Logger::log_response(id, res_body);
+        }
+
+        let res = Response::from_parts(parts, Body::from(body_bytes.clone()));
+
+        Ok(res)
     }
 }
 
