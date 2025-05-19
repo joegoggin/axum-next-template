@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use axum::{Json, http::StatusCode, response::IntoResponse};
-use colorized::{Colors, colorize_println};
+use log::error;
 use sea_orm::DbErr;
 use serde_json::json;
 
@@ -47,7 +47,7 @@ impl ServerErrorResponse {
     {
         let mut errors = Vec::new();
 
-        colorize_println(format!("Error: {:#?}", error), Colors::RedFg);
+        error!("Error: {:#?}", error);
 
         errors.push(ServerError::new(None, "Something went wrong."));
 

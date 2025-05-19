@@ -1,4 +1,4 @@
-use colorized::{Colors, colorize_println};
+use log::error;
 use server::core::app::App;
 
 #[tokio::main]
@@ -8,8 +8,6 @@ async fn main() {
     let result = app.run().await;
 
     if let Err(error) = result {
-        let error_message = format!("Error: {}", error.to_string());
-
-        colorize_println(error_message, Colors::RedFg);
+        error!("Error: {}", error.to_string());
     }
 }

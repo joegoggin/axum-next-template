@@ -1,5 +1,5 @@
 use axum::http::StatusCode;
-use colorized::{Colors, colorize_println};
+use log::error;
 use sea_orm::{DbErr, RuntimeErr, SqlxError, sqlx::error::DatabaseError};
 
 use crate::{
@@ -27,7 +27,7 @@ where
 }
 
 fn handle_connection_error(error: RuntimeErr) -> ServerErrorResponse {
-    colorize_println(format!("{:#?}", error), Colors::RedFg);
+    error!("{:#?}", error);
     return ServerErrorResponse::new_with_message(
         StatusCode::INTERNAL_SERVER_ERROR,
         "Failed to connect to database",
@@ -45,7 +45,7 @@ where
                     match code.as_ref() {
                         "23505" => return handle_unique_constranit_error(error, req_body),
                         _ => {
-                            colorize_println(format!("{:#?}", error), Colors::RedFg);
+                            error!("{:#?}", error);
 
                             return ServerErrorResponse::new_with_message(
                                 StatusCode::BAD_REQUEST,
@@ -55,7 +55,7 @@ where
                     }
                 }
 
-                colorize_println(format!("{:#?}", error), Colors::RedFg);
+                error!("{:#?}", error);
 
                 return ServerErrorResponse::new_with_message(
                     StatusCode::BAD_REQUEST,
@@ -63,7 +63,7 @@ where
                 );
             }
             _ => {
-                colorize_println(format!("{:#?}", error), Colors::RedFg);
+                error!("{:#?}", error);
 
                 return ServerErrorResponse::new_with_message(
                     StatusCode::BAD_REQUEST,
@@ -72,7 +72,7 @@ where
             }
         },
         _ => {
-            colorize_println(format!("{:#?}", error), Colors::RedFg);
+            error!("{:#?}", error);
 
             return ServerErrorResponse::new_with_message(StatusCode::BAD_REQUEST, "Query Error");
         }
@@ -102,7 +102,7 @@ where
             ServerError::new(Some(field), &message),
         );
     } else {
-        colorize_println(format!("{:#?}", error), Colors::RedFg);
+        error!("{:#?}", error);
     }
 
     return ServerErrorResponse::new_with_message(StatusCode::BAD_REQUEST, &message);
