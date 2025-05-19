@@ -1,4 +1,6 @@
-use super::{env::Env, server::Server};
+use log::{debug, error, info};
+
+use super::{env::Env, logger::Logger, server::Server};
 
 pub type AppResult<T> = anyhow::Result<T>;
 
@@ -12,6 +14,12 @@ impl App {
     pub async fn run(&self) -> AppResult<()> {
         let env = Env::new()?;
         let server = Server::new(env);
+
+        Logger::setup_logging();
+
+        info!("this is an info!");
+        error!("this is an error!");
+        debug!("this is a debug!");
 
         server.start().await?;
 

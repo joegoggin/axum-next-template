@@ -5,7 +5,7 @@ server *args:
 server-build:
 	cd server && cargo-watch -c -x "build"
 
-server-install *args:
+server-add *args:
 	cd server && cargo add {{args}}
 
 # database
