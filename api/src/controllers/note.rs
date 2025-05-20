@@ -20,7 +20,8 @@ impl NoteController {
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
         let active_model = note::ActiveModel {
             title: Set(req_body.title),
-            contnet: Set(req_body.content),
+            content: Set(req_body.content),
+            notebook_id: Set(req_body.notebook_id),
             ..Default::default()
         };
 
@@ -60,13 +61,13 @@ impl NoteController {
         }
 
         if let Some(content) = req_body.content {
-            active_model.contnet = Set(content);
+            active_model.content = Set(content);
         }
 
-        let update_model = active_model.update(&db).await?;
+        let updated_model = active_model.update(&db).await?;
 
         let response = NoteWithMessageResponse {
-            note: update_model.into(),
+            note: updated_model.into(),
             message: "Note successfully updated.".to_string(),
         };
 

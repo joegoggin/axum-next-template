@@ -1,6 +1,6 @@
 use sea_orm_migration::prelude::*;
 
-use crate::schema::note::Note;
+use crate::schema::notebook::Notebook;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -11,17 +11,16 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Note::Table)
+                    .table(Notebook::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Note::Id)
+                        ColumnDef::new(Notebook::Id)
                             .uuid()
                             .not_null()
                             .primary_key()
                             .default(Expr::cust("gen_random_uuid()")),
                     )
-                    .col(ColumnDef::new(Note::Title).string().not_null())
-                    .col(ColumnDef::new(Note::Contnet).string().not_null())
+                    .col(ColumnDef::new(Notebook::Title).string().not_null())
                     .to_owned(),
             )
             .await?;
@@ -31,7 +30,9 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Note::Table).to_owned())
-            .await
+            .drop_table(Table::drop().table(Notebook::Table).to_owned())
+            .await?;
+
+        Ok(())
     }
 }

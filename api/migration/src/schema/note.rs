@@ -5,5 +5,11 @@ pub enum Note {
     Table,
     Id,
     Title,
-    Contnet,
+    Content,
+    NotebookId,
+}
+
+#[derive(DeriveIden)]
+pub enum NoteForeignKey {
+    Notebook,
 }

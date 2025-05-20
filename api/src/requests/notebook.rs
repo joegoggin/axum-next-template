@@ -1,15 +1,11 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
-pub struct CreateNoteRequest {
+pub struct CreateNotebookRequest {
     pub title: String,
-    pub content: String,
-    pub notebook_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct UpdateNoteRequest {
+pub struct UpdateNotebookRequest {
     pub title: Option<String>,
-    pub content: Option<String>,
 }

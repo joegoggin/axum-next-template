@@ -8,7 +8,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::core::logger::Logger;
 
-use super::note::NoteRouter;
+use super::{note::NoteRouter, notebook::NotebookRouter};
 
 pub struct MainRouter;
 
@@ -26,6 +26,7 @@ impl MainRouter {
 
         Router::new()
             .nest("/note", NoteRouter::new())
+            .nest("/notebook", NotebookRouter::new())
             .layer(Extension(db))
             .layer(cors)
             .layer(middleware::from_fn(Logger::log_request_and_response))

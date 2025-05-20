@@ -1,17 +1,13 @@
 use entity::note;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct Note {
     pub id: String,
     pub title: String,
     pub content: String,
-}
-
-impl Note {
-    pub fn new(id: String, title: String, content: String) -> Self {
-        Self { id, title, content }
-    }
+    pub notebook_id: Uuid,
 }
 
 impl From<note::Model> for Note {
@@ -19,7 +15,8 @@ impl From<note::Model> for Note {
         Self {
             id: value.id.into(),
             title: value.title.to_string(),
-            content: value.contnet.to_string(),
+            content: value.content.to_string(),
+            notebook_id: value.notebook_id.to_owned(),
         }
     }
 }
