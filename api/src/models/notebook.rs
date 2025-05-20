@@ -1,7 +1,7 @@
 use entity::{note, notebook};
 use serde::{Deserialize, Serialize};
 
-use super::note::{Note, Notes, ToNotes};
+use super::note::{Notes, ToNotes};
 
 pub type NotebookModelWithRelations = (notebook::Model, Vec<note::Model>);
 
