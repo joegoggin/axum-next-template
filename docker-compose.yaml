@@ -1,7 +1,7 @@
 services:
     postgres:
         image: postgres:14
-        container_name: blank-template-db
+        container_name: axum-next-template
         env_file:
             - ./env/postgres.env
         ports:

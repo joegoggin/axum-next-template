@@ -1,5 +1,5 @@
+use api::core::app::App;
 use log::error;
-use server::core::app::App;
 
 #[tokio::main]
 async fn main() {
