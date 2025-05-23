@@ -1,7 +1,11 @@
-import { redirect } from "next/navigation";
+import "./home.scss";
 
-const Home = () => {
-    redirect("/home");
+const HomePage: React.FC = () => {
+    return (
+        <div className="home">
+            <h1>Next Axum Basic Template</h1>
+        </div>
+    );
 };
 
-export default Home;
+export default HomePage;
