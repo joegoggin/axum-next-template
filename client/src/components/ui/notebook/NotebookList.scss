@@ -3,4 +3,24 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
     margin-top: 20px;
+
+    h2 {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    &__notebook {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+
+        svg {
+            fill: --text-color;
+        }
+
+        h3 {
+            margin-right: 15px;
+        }
+    }
 }

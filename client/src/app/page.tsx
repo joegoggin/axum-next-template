@@ -1,6 +1,6 @@
 import NotebookList from "@/components/ui/notebook/NotebookList";
 import { get } from "@/utils/axios";
-import "./home.scss";
+import "./Home.scss";
 import { Notebooks } from "@/types/db/notebook";
 import Nav from "@/components/ui/nav/Nav";
 

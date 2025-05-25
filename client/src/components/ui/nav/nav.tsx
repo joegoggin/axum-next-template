@@ -2,7 +2,7 @@
 
 import Icon from "@/components/ui/icon/Icon";
 import { IconType } from "@/types/icon/Icon";
-import "./nav.scss";
+import "./Nav.scss";
 import { useEffect, useState } from "react";
 import { Colors } from "@/constants/color";
 
