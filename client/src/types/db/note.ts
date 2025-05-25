@@ -5,3 +5,5 @@ export type Note = {
     color: string;
     notebook_id: string;
 };
+
+export type Notes = Note[];

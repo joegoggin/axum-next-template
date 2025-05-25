@@ -1,8 +1,10 @@
-import { Note } from "@/types/db/note";
+import { Notes } from "@/types/db/note";
 
 export type Notebook = {
     id: string;
     title: string;
     color: string;
-    notes: Note[];
+    notes: Notes;
 };
+
+export type Notebooks = Notebook[];
