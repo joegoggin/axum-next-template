@@ -1,5 +1,5 @@
 export const Colors = {
-    //Tokyo Night
+    // Tokyo Night
     cadmiumRed: "#EC071E",
     tangerine: "#F4850D",
     blueberry: "#4B98FF",
@@ -10,7 +10,7 @@ export const Colors = {
     aliceBlue: "#EDF7FD",
     seashell: "#FDF3ED",
 
-    //UI Colors: Positive -> Negative -> Neutral
+    // UI Colors: Positive -> Negative -> Neutral
     apple: "#57A756",
     iguanaGreen: "#78B977",
     mayGreen: "#458545",
@@ -23,7 +23,7 @@ export const Colors = {
     bleuDeFrance: "#2F82DB",
     darkCharcoal: "#333333",
 
-    //Standard
+    // Standard
     black: "#000000",
     white: "#FFFFFF",
 };

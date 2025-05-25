@@ -21,6 +21,12 @@ impl MigrationTrait for Migration {
                             .default(Expr::cust("gen_random_uuid()")),
                     )
                     .col(ColumnDef::new(Notebook::Title).string().not_null())
+                    .col(
+                        ColumnDef::new(Notebook::Color)
+                            .string()
+                            .not_null()
+                            .default("#2F82DB"),
+                    )
                     .to_owned(),
             )
             .await?;

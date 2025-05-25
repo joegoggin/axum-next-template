@@ -18,10 +18,14 @@ impl NotebookController {
         Extension(db): DBExt,
         Json(req_body): Json<CreateNotebookRequest>,
     ) -> ServerResult<Json<NotebookWithMessageResponse>> {
-        let active_model = notebook::ActiveModel {
+        let mut active_model = notebook::ActiveModel {
             title: Set(req_body.title.to_string()),
             ..Default::default()
         };
+
+        if let Some(color) = req_body.color {
+            active_model.color = Set(color)
+        }
 
         let model = notebook::Entity::insert(active_model)
             .exec_with_returning(&db)
@@ -62,6 +66,10 @@ impl NotebookController {
 
         if let Some(title) = req_body.title {
             active_model.title = Set(title)
+        }
+
+        if let Some(color) = req_body.color {
+            active_model.color = Set(color)
         }
 
         let updated_model = active_model.update(&db).await?;

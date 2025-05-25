@@ -22,6 +22,12 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Note::Title).string().not_null())
                     .col(ColumnDef::new(Note::Content).string().not_null())
+                    .col(
+                        ColumnDef::new(Note::Color)
+                            .string()
+                            .not_null()
+                            .default("#2F82DB"),
+                    )
                     .to_owned(),
             )
             .await?;

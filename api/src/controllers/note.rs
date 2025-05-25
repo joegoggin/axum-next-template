@@ -18,12 +18,16 @@ impl NoteController {
         Extension(db): DBExt,
         Json(req_body): Json<CreateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
-        let active_model = note::ActiveModel {
+        let mut active_model = note::ActiveModel {
             title: Set(req_body.title),
             content: Set(req_body.content),
             notebook_id: Set(req_body.notebook_id),
             ..Default::default()
         };
+
+        if let Some(color) = req_body.color {
+            active_model.color = Set(color)
+        }
 
         let model = note::Entity::insert(active_model)
             .exec_with_returning(&db)
@@ -62,6 +66,10 @@ impl NoteController {
 
         if let Some(content) = req_body.content {
             active_model.content = Set(content);
+        }
+
+        if let Some(color) = req_body.color {
+            active_model.color = Set(color);
         }
 
         let updated_model = active_model.update(&db).await?;

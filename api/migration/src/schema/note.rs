@@ -6,6 +6,7 @@ pub enum Note {
     Id,
     Title,
     Content,
+    Color,
     NotebookId,
 }
 

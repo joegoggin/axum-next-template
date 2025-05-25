@@ -9,17 +9,8 @@ pub type NotebookModelWithRelations = (notebook::Model, Vec<note::Model>);
 pub struct Notebook {
     id: String,
     title: String,
+    color: String,
     notes: Notes,
-}
-
-impl Notebook {
-    pub fn new(id: String, title: String) -> Self {
-        Self {
-            id,
-            title,
-            notes: vec![],
-        }
-    }
 }
 
 impl From<NotebookModelWithRelations> for Notebook {
@@ -27,6 +18,7 @@ impl From<NotebookModelWithRelations> for Notebook {
         Self {
             id: value.0.id.into(),
             title: value.0.title.to_string(),
+            color: value.0.color.to_string(),
             notes: value.1.to_notes(),
         }
     }

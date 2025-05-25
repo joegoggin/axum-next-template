@@ -5,6 +5,7 @@ use uuid::Uuid;
 pub struct CreateNoteRequest {
     pub title: String,
     pub content: String,
+    pub color: Option<String>,
     pub notebook_id: Uuid,
 }
 
@@ -12,4 +13,5 @@ pub struct CreateNoteRequest {
 pub struct UpdateNoteRequest {
     pub title: Option<String>,
     pub content: Option<String>,
+    pub color: Option<String>,
 }

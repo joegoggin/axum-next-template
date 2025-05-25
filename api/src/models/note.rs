@@ -7,6 +7,7 @@ pub struct Note {
     pub id: String,
     pub title: String,
     pub content: String,
+    pub color: String,
     pub notebook_id: Uuid,
 }
 
@@ -16,6 +17,7 @@ impl From<note::Model> for Note {
             id: value.id.into(),
             title: value.title.to_string(),
             content: value.content.to_string(),
+            color: value.color.to_string(),
             notebook_id: value.notebook_id.to_owned(),
         }
     }

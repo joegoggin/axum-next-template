@@ -5,5 +5,6 @@ pub enum Notebook {
     Table,
     Id,
     Title,
+    Color,
     Notes,
 }
