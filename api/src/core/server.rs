@@ -16,17 +16,18 @@ impl Server {
     }
 
     pub async fn start(&self) -> AppResult<()> {
-        self.start_docker()?;
+        self.start_docker().await?;
         self.start_server().await?;
 
         Ok(())
     }
 
-    fn start_docker(&self) -> AppResult<()> {
+    async fn start_docker(&self) -> AppResult<()> {
         if self.env.is_dev_mode() {
             Logger::log_message("Starting Docker");
 
-            TerminalCommand::new("docker compose up -d").run()?;
+            TerminalCommand::new("docker compose up -d").run().await?;
+            TerminalCommand::new("sleep 1").run().await?;
 
             Logger::log_success("Successfully Started Docker");
         }

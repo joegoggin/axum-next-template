@@ -1,4 +1,4 @@
-use std::process::Command;
+use tokio::process::Command;
 
 use anyhow::Error;
 
@@ -29,8 +29,8 @@ impl TerminalCommand {
         Self { command, args }
     }
 
-    pub fn run(&self) -> AppResult<()> {
-        let status = self.get_command().status()?;
+    pub async fn run(&self) -> AppResult<()> {
+        let status = self.get_command().status().await?;
 
         if !status.success() {
             let error_message = format!("The following command failed `{}`", self.command);
@@ -41,8 +41,8 @@ impl TerminalCommand {
         Ok(())
     }
 
-    pub fn run_with_output(&self) -> AppResult<String> {
-        let output = self.get_command().output();
+    pub async fn run_with_output(&self) -> AppResult<String> {
+        let output = self.get_command().output().await;
 
         if let Ok(output) = output {
             if !output.status.success() {
@@ -61,10 +61,10 @@ impl TerminalCommand {
         Ok(String::new())
     }
 
-    pub fn clear() -> AppResult<()> {
+    pub async fn clear() -> AppResult<()> {
         let clear_command = Self::new("clear");
 
-        clear_command.run()
+        clear_command.run().await
     }
 
     fn get_command(&self) -> Command {
