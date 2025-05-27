@@ -11,6 +11,12 @@ client-build *args:
 client-lint *args:
 	cd client && yarn lint {{args}}
 
+client-add *args:
+	cd client && yarn add {{args}}
+
+client-remove *args:
+	cd client && yarn remove {{args}}
+
 # api
 api *args:
 	cd api && cargo-watch -c -x "run -- {{args}}"

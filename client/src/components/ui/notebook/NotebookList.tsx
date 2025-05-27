@@ -1,8 +1,12 @@
+"use client";
+
 import { Notebook } from "@/types/db/notebook";
 import "./NotebookList.scss";
 import Card from "@/components/ui/card/Card";
 import Icon from "@/components/ui/icon/Icon";
 import { IconType } from "@/types/icon/Icon";
+import { useCssVar } from "@/hooks/useCssVar";
+import { useEffect } from "react";
 import { Colors } from "@/constants/color";
 
 type NotebookListProps = {
@@ -10,6 +14,11 @@ type NotebookListProps = {
 };
 
 const NotebookList: React.FC<NotebookListProps> = ({ notebooks }) => {
+    const [textColor] = useCssVar("--text-color");
+
+    useEffect(() => {
+        console.log(textColor);
+    }, [textColor]);
     return (
         <div className="notebooks">
             {notebooks.map((notebook) => (
@@ -21,7 +30,7 @@ const NotebookList: React.FC<NotebookListProps> = ({ notebooks }) => {
                             type={IconType.OCTICONS}
                             name="note"
                             size={50}
-                            color={Colors.white}
+                            color={textColor}
                         />
                     </div>
                 </Card>

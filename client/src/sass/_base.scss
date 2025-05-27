@@ -11,12 +11,12 @@
     margin: 0;
 }
 
-:root {
+[data-theme="light"] {
     --bg-color: #{colors.$bright-gray-100};
     --text-color: #{colors.$chinese-black-100};
 }
 
-.dark-theme {
+[data-theme="dark"] {
     --bg-color: #{colors.$chinese-black-100};
     --text-color: white;
 }

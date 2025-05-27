@@ -11,9 +11,9 @@ const Nav: React.FC = () => {
 
     useEffect(() => {
         if (isDarkTheme) {
-            document.body.classList.add("dark-theme");
+            document.documentElement.setAttribute("data-theme", "dark");
         } else {
-            document.body.classList.remove("dark-theme");
+            document.documentElement.setAttribute("data-theme", "light");
         }
     }, [isDarkTheme]);
 
