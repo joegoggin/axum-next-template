@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { Roboto, Rubik } from "next/font/google";
 import "@/sass/index.scss";
+import Nav from "@/components/ui/nav/Nav";
+import "./Layout.scss";
 
 type RootLayoutProps = {
     children: ReactNode;
@@ -29,7 +31,10 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
             </head>
 
             <body className={`${roboto.className} ${rubik.className}`}>
-                {children}
+                <div className="layout">
+                    <Nav />
+                    <div className="layout__content">{children}</div>
+                </div>
             </body>
         </html>
     );

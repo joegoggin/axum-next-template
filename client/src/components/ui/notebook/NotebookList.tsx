@@ -6,8 +6,8 @@ import Card from "@/components/ui/card/Card";
 import Icon from "@/components/ui/icon/Icon";
 import { IconType } from "@/types/icon/Icon";
 import { useCssVar } from "@/hooks/useCssVar";
-import { useEffect } from "react";
-import { Colors } from "@/constants/color";
+import { useRouter } from "next/navigation";
+import Grid from "@/components/ui/grid/Grid";
 
 type NotebookListProps = {
     notebooks: Notebook[];
@@ -15,14 +15,20 @@ type NotebookListProps = {
 
 const NotebookList: React.FC<NotebookListProps> = ({ notebooks }) => {
     const [textColor] = useCssVar("--text-color");
+    const router = useRouter();
 
-    useEffect(() => {
-        console.log(textColor);
-    }, [textColor]);
+    const handleClick = (id: string) => {
+        router.push(`/notebook/${id}`);
+    };
+
     return (
-        <div className="notebooks">
+        <Grid>
             {notebooks.map((notebook) => (
-                <Card key={notebook.id} color={notebook.color}>
+                <Card
+                    key={notebook.id}
+                    color={notebook.color}
+                    onClick={() => handleClick(notebook.id)}
+                >
                     <h2>{notebook.title}</h2>
                     <div className="notebooks__notebook">
                         <h3>{notebook.notes.length}</h3>
@@ -35,7 +41,7 @@ const NotebookList: React.FC<NotebookListProps> = ({ notebooks }) => {
                     </div>
                 </Card>
             ))}
-        </div>
+        </Grid>
     );
 };
 
