@@ -3,7 +3,7 @@ use entity::note;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
 
 use crate::{
-    core::error::server_error_response::ServerResult,
+    core::{error::server_error_response::ServerResult, validated_json::ValidatedJson},
     middleware::note::NoteModelExt,
     models::note::{Note, Notes, ToNotes},
     requests::note::{CreateNoteRequest, UpdateNoteRequest},
@@ -16,7 +16,7 @@ pub struct NoteController;
 impl NoteController {
     pub async fn create_note(
         Extension(db): DBExt,
-        Json(req_body): Json<CreateNoteRequest>,
+        ValidatedJson(req_body): ValidatedJson<CreateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
         let mut active_model = note::ActiveModel {
             title: Set(req_body.title),
