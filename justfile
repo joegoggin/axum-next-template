@@ -1,3 +1,10 @@
+# setup 
+setup:
+	./scripts/setup.sh
+
+env:
+	./scripts/generate_env.sh
+
 # client
 client *args:
 	cd client && yarn dev {{args}}
