@@ -17,6 +17,7 @@ impl Server {
 
     pub async fn start(&self) -> AppResult<()> {
         self.start_docker().await?;
+        self.create_database().await?;
         self.start_server().await?;
 
         Ok(())
@@ -30,6 +31,28 @@ impl Server {
             TerminalCommand::new("sleep 1").run().await?;
 
             Logger::log_success("Successfully Started Docker");
+        }
+
+        Ok(())
+    }
+
+    async fn create_database(&self) -> AppResult<()> {
+        if self.env.is_dev_mode() {
+            let result = TerminalCommand::new(
+                "docker exec -i axum-next-template_postgres psql -U postgres -d postgres -f /tmp/list.sql"
+            )
+            .run_with_output()
+            .await?;
+
+            if !result.contains("axum-next-template") {
+                Logger::log_message("Createing Database");
+
+                TerminalCommand::new("docker exec -i axum-next-template_postgres psql -U postgres -d postgres -f /tmp/init.sql")
+                    .run()
+                    .await?;
+
+                Logger::log_success("Successfully Created Database");
+            }
         }
 
         Ok(())
