@@ -1,5 +1,4 @@
 use axum::serve;
-use sea_orm::Database;
 use tokio::net::TcpListener;
 
 use crate::{routes::main::MainRouter, utils::terminal_command::TerminalCommand};
@@ -62,8 +61,8 @@ impl Server {
         Logger::log_success("Server running on port 8000");
 
         let listener = TcpListener::bind("0.0.0.0:8000").await?;
-        let db = Database::connect(self.env.database_url.clone()).await?;
-        let rotuer = MainRouter::new(db);
+        // TODO: handle database connection in start_server
+        let rotuer = MainRouter::new();
 
         serve(listener, rotuer).await?;
 

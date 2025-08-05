@@ -1,9 +1,6 @@
-use entity::{note, notebook};
 use serde::{Deserialize, Serialize};
 
-use super::note::{Notes, ToNotes};
-
-pub type NotebookModelWithRelations = (notebook::Model, Vec<note::Model>);
+use super::note::Notes;
 
 #[derive(Serialize, Deserialize)]
 pub struct Notebook {
@@ -13,31 +10,8 @@ pub struct Notebook {
     notes: Notes,
 }
 
-impl From<NotebookModelWithRelations> for Notebook {
-    fn from(value: (notebook::Model, Vec<note::Model>)) -> Self {
-        Self {
-            id: value.0.id.into(),
-            title: value.0.title.to_string(),
-            color: value.0.color.to_string(),
-            notes: value.1.to_notes(),
-        }
-    }
-}
-
 pub type Notebooks = Vec<Notebook>;
 
 pub trait ToNotebooks {
     fn to_notebooks(&self) -> Notebooks;
-}
-
-impl ToNotebooks for Vec<NotebookModelWithRelations> {
-    fn to_notebooks(&self) -> Notebooks {
-        let mut notebooks: Notebooks = vec![];
-
-        for model in self {
-            notebooks.push(model.clone().into())
-        }
-
-        notebooks
-    }
 }

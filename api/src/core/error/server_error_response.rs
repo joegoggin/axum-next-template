@@ -2,10 +2,7 @@ use std::fmt::Debug;
 
 use axum::{Json, http::StatusCode, response::IntoResponse};
 use log::error;
-use sea_orm::DbErr;
 use serde_json::json;
-
-use crate::utils::sea_orm::{NoReqBody, handle_sea_orm_error};
 
 use super::server_error::{ServerError, ServerErrors};
 
@@ -65,12 +62,6 @@ impl IntoResponse for ServerErrorResponse {
         });
 
         (self.status_code, Json(res_body)).into_response()
-    }
-}
-
-impl From<DbErr> for ServerErrorResponse {
-    fn from(value: DbErr) -> Self {
-        handle_sea_orm_error(value, &NoReqBody)
     }
 }
 
