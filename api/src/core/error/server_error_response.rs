@@ -65,4 +65,10 @@ impl IntoResponse for ServerErrorResponse {
     }
 }
 
+impl From<sqlx::Error> for ServerErrorResponse {
+    fn from(value: sqlx::Error) -> Self {
+        ServerErrorResponse::new_internal_server_error(value.to_string())
+    }
+}
+
 pub type ServerResult<T> = Result<T, ServerErrorResponse>;

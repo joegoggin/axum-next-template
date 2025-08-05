@@ -1,4 +1,5 @@
 use axum::serve;
+use sqlx::PgPool;
 use tokio::net::TcpListener;
 
 use crate::{routes::main::MainRouter, utils::terminal_command::TerminalCommand};
@@ -61,8 +62,8 @@ impl Server {
         Logger::log_success("Server running on port 8000");
 
         let listener = TcpListener::bind("0.0.0.0:8000").await?;
-        // TODO: handle database connection in start_server
-        let rotuer = MainRouter::new();
+        let db = PgPool::connect(&self.env.database_url).await?;
+        let rotuer = MainRouter::new(db);
 
         serve(listener, rotuer).await?;
 

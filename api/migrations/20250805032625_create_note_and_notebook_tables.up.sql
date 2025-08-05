@@ -1,7 +1,9 @@
 CREATE TABLE Notebook (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
-    color TEXT NOT NULL
+    color TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE Note (
@@ -11,6 +13,7 @@ CREATE TABLE Note (
     color TEXT NOT NULL,
     notebook_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_notebook
         FOREIGN KEY (notebook_id)
