@@ -41,3 +41,6 @@ api-remove *args:
 db-migrate *args:
 	cd api && sqlx migrate {{args}}
 
+# posting
+posting:
+	posting --collection ./.posting/collection --env ./.posting/.env

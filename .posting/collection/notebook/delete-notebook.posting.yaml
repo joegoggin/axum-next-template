@@ -1,0 +1,3 @@
+name: delete_notebook
+method: DELETE
+url: $API_URL/notebook/d27facb9-4ade-4270-a1bc-4b05ee7ff02a

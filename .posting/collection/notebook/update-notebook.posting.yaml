@@ -1,0 +1,13 @@
+name: update_notebook
+method: PUT
+url: $API_URL/notebook/6eddf0a5-fe04-4b9a-86a9-8b106ecccbff
+body:
+  content: |-
+    {
+      "title": "My Notebook",
+      "color": "#f4850d"
+    }
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json
