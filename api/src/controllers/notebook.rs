@@ -1,16 +1,13 @@
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
-use axum::{Extension, Json, extract::Path};
+use axum::{Extension, Json};
 use sqlx::{query, query_as};
 use uuid::Uuid;
 
 use crate::{
     core::error::server_error_response::{ServerErrorResponse, ServerResult},
     middleware::notebook::NotebookExt,
-    models::{
-        note::Note,
-        notebook::{Notebook, NotebookRow, Notebooks},
-    },
+    models::notebook::{Notebook, NotebookRow, NotebookWithNoteRow, Notebooks, ToNotebooks},
     requests::notebook::{CreateNotebookRequest, UpdateNotebookRequest},
     responses::{message::Message, notebook::NotebookWithMessageResponse},
     routes::main::DBExt,
@@ -50,7 +47,8 @@ impl NotebookController {
     }
 
     pub async fn get_notebooks(Extension(db): DBExt) -> ServerResult<Json<Notebooks>> {
-        let rows = sqlx::query!(
+        let rows = query_as!(
+            NotebookWithNoteRow,
             r#"
             SELECT 
                 n.id as notebook_id,
@@ -72,50 +70,7 @@ impl NotebookController {
         .fetch_all(&db)
         .await?;
 
-        let mut notebook_map: HashMap<String, Notebook> = HashMap::new();
-
-        for row in rows {
-            let notebook_id = row.notebook_id.to_string();
-
-            let notebook = notebook_map.entry(notebook_id.clone()).or_insert(Notebook {
-                id: notebook_id.clone(),
-                title: row.notebook_title,
-                color: row.notebook_color,
-                notes: vec![],
-                created_at: row.notebook_created_at,
-                modified_at: row.notebook_modified_at,
-            });
-
-            if let (
-                Some(id),
-                Some(title),
-                Some(content),
-                Some(color),
-                Some(created_at),
-                Some(modified_at),
-            ) = (
-                row.note_id,
-                row.note_title,
-                row.note_content,
-                row.note_color,
-                row.note_created_at,
-                row.note_modified_at,
-            ) {
-                notebook.notes.push(Note {
-                    id: id.to_string(),
-                    title,
-                    content,
-                    color,
-                    notebook_id,
-                    created_at,
-                    modified_at,
-                })
-            }
-        }
-
-        let response = notebook_map.into_values().collect::<Notebooks>();
-
-        Ok(Json::from(response))
+        Ok(Json::from(rows.to_notebooks()))
     }
 
     pub async fn get_notebook(Extension(notebook): NotebookExt) -> ServerResult<Json<Notebook>> {

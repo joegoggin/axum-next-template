@@ -3,7 +3,7 @@ use axum::{
     http::{HeaderName, Method},
     middleware,
 };
-use sqlx::{PgPool, Pool, Postgres};
+use sqlx::{Pool, Postgres};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::core::logger::Logger;
