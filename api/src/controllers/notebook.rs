@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use axum::{Extension, Json, http::response};
-use sqlx::{query, query_as};
+use axum::{Extension, Json};
+use sqlx::query_as;
 
 use crate::{
     core::error::server_error_response::ServerResult,
+    middleware::notebook::NotebookExt,
     models::{
-        note::{Note, Notes},
+        note::Note,
         notebook::{Notebook, NotebookRow, Notebooks},
     },
     requests::notebook::CreateNotebookRequest,
@@ -84,11 +85,20 @@ impl NotebookController {
                 modified_at: row.notebook_modified_at,
             });
 
-            if let (Some(id), Some(title), Some(content), Some(color)) = (
+            if let (
+                Some(id),
+                Some(title),
+                Some(content),
+                Some(color),
+                Some(created_at),
+                Some(modified_at),
+            ) = (
                 row.note_id,
                 row.note_title,
                 row.note_content,
                 row.note_color,
+                row.note_created_at,
+                row.note_modified_at,
             ) {
                 notebook.notes.push(Note {
                     id: id.to_string(),
@@ -96,6 +106,8 @@ impl NotebookController {
                     content,
                     color,
                     notebook_id,
+                    created_at,
+                    modified_at,
                 })
             }
         }
@@ -105,9 +117,8 @@ impl NotebookController {
         Ok(Json::from(response))
     }
 
-    // TODO: add get_notebook controller
-    pub async fn get_notebook() -> ServerResult<Json<Notebook>> {
-        todo!()
+    pub async fn get_notebook(Extension(notebook): NotebookExt) -> ServerResult<Json<Notebook>> {
+        Ok(Json::from(notebook))
     }
 
     // TODO: add update_notebook controller

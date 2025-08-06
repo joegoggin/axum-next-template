@@ -12,7 +12,7 @@ pub struct NotebookRow {
     pub modified_at: DateTime<Utc>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Notebook {
     pub id: String,
     pub title: String,
