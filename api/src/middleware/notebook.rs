@@ -3,19 +3,15 @@ use std::str::FromStr;
 use axum::{
     Extension,
     extract::{Path, Request},
-    http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use sqlx::{query, query_as};
+use sqlx::query_as;
 use uuid::Uuid;
 
 use crate::{
-    core::error::server_error_response::{ServerErrorResponse, ServerResult},
-    models::{
-        note::Note,
-        notebook::{Notebook, NotebookWithNoteRow},
-    },
+    core::error::server_error_response::ServerResult,
+    models::notebook::{Notebook, NotebookWithNoteRow},
     routes::main::DBExt,
 };
 
