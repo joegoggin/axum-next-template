@@ -1,16 +1,17 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
-use axum::{Extension, Json};
-use sqlx::query_as;
+use axum::{Extension, Json, extract::Path};
+use sqlx::{query, query_as};
+use uuid::Uuid;
 
 use crate::{
-    core::error::server_error_response::ServerResult,
+    core::error::server_error_response::{ServerErrorResponse, ServerResult},
     middleware::notebook::NotebookExt,
     models::{
         note::Note,
         notebook::{Notebook, NotebookRow, Notebooks},
     },
-    requests::notebook::CreateNotebookRequest,
+    requests::notebook::{CreateNotebookRequest, UpdateNotebookRequest},
     responses::{message::Message, notebook::NotebookWithMessageResponse},
     routes::main::DBExt,
 };
@@ -121,9 +122,60 @@ impl NotebookController {
         Ok(Json::from(notebook))
     }
 
-    // TODO: add update_notebook controller
-    pub async fn update_notebook() -> ServerResult<Json<NotebookWithMessageResponse>> {
-        todo!()
+    pub async fn update_notebook(
+        Extension(db): DBExt,
+        Extension(notebook): NotebookExt,
+        Json(res_body): Json<UpdateNotebookRequest>,
+    ) -> ServerResult<Json<NotebookWithMessageResponse>> {
+        let mut tx = db.begin().await?;
+
+        let result = query!(
+            r#"
+            UPDATE Notebook
+            SET 
+                title = COALESCE($1, title),
+                color = COALESCE($2, color), 
+                modified_at = NOW()
+            WHERE id = $3
+            "#,
+            res_body.title,
+            res_body.color,
+            Uuid::from_str(&notebook.id)?,
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        if result.rows_affected() != 1 {
+            tx.rollback().await?;
+
+            let error_message = format!(
+                "Query: {} rows affected but expected 1 row affected",
+                result.rows_affected()
+            );
+
+            return Err(ServerErrorResponse::new_internal_server_error(
+                &error_message,
+            ));
+        }
+
+        tx.commit().await?;
+
+        let mut notebook = notebook.clone();
+
+        if let Some(title) = res_body.title {
+            notebook.title = title;
+        }
+
+        if let Some(color) = res_body.color {
+            notebook.color = color;
+        }
+
+        let response = NotebookWithMessageResponse {
+            notebook,
+            message: "Successfully updated Notebook.".to_string(),
+        };
+
+        Ok(Json::from(response))
     }
 
     // TODO: add delete_notebook controller
