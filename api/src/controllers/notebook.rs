@@ -178,8 +178,41 @@ impl NotebookController {
         Ok(Json::from(response))
     }
 
-    // TODO: add delete_notebook controller
-    pub async fn delete_notebook() -> ServerResult<Json<Message>> {
-        todo!()
+    pub async fn delete_notebook(
+        Extension(db): DBExt,
+        Extension(notebook): NotebookExt,
+    ) -> ServerResult<Json<Message>> {
+        let mut tx = db.begin().await?;
+
+        let result = query!(
+            r#"
+            DELETE FROM Notebook
+            WHERE id = $1
+            "#,
+            Uuid::from_str(&notebook.id)?
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        if result.rows_affected() != 1 {
+            tx.rollback().await?;
+
+            let error_message = format!(
+                "Query: {} rows affected but expected 1 row affected",
+                result.rows_affected()
+            );
+
+            return Err(ServerErrorResponse::new_internal_server_error(
+                &error_message,
+            ));
+        }
+
+        tx.commit().await?;
+
+        let response = Message {
+            message: "Successfully deleted Notebook.".to_string(),
+        };
+
+        Ok(Json::from(response))
     }
 }
