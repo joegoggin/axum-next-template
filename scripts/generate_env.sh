@@ -23,3 +23,8 @@ echo "POSTGRES_PASSWORD=\"$PASSWORD\"" >>./docker/env/postgres.env
 echo "PGADMIN_DEFAULT_EMAIL=\"$EMAIL\"" >>./docker/env/pgadmin.env
 echo "PGADMIN_DEFAULT_PASSWORD=\"$PASSWORD\"" >>./docker/env/pgadmin.env
 echo "PGADMIN_CONFIG_SERVER_MODE=\"False\"" >>./docker/env/pgadmin.env
+
+# Posting
+rm -rf ./.posting/.env
+
+echo "API_URL=\"http://localhost:8000\"" >>./.posting/.env
