@@ -3,6 +3,7 @@ use std::str::FromStr;
 use axum::{
     Extension,
     extract::{Path, Request},
+    http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -10,7 +11,7 @@ use sqlx::query_as;
 use uuid::Uuid;
 
 use crate::{
-    core::error::server_error_response::ServerResult,
+    core::error::server_error_response::{ServerErrorResponse, ServerResult},
     models::notebook::{Notebook, NotebookWithNoteRow},
     routes::main::DBExt,
 };
@@ -50,6 +51,15 @@ impl NotebookMiddleware {
         )
         .fetch_all(&db)
         .await?;
+
+        if rows.is_empty() {
+            let error_message = format!("`Notebook` with id of {} not found.", notebook_id);
+
+            return Err(ServerErrorResponse::new_with_message(
+                StatusCode::NOT_FOUND,
+                error_message,
+            ));
+        }
 
         let notebook = Notebook::try_from(rows)?;
 

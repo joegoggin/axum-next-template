@@ -1,9 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Note {
-    pub id: String,
+    pub id: Uuid,
     pub title: String,
     pub content: String,
     pub color: String,

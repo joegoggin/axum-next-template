@@ -40,11 +40,11 @@ impl ServerErrorResponse {
 
     pub fn new_internal_server_error<T>(error: T) -> Self
     where
-        T: Debug,
+        T: ToString,
     {
         let mut errors = Vec::new();
 
-        error!("Error: {:#?}", error);
+        error!("Error: {}", error.to_string());
 
         errors.push(ServerError::new(None, "Something went wrong."));
 

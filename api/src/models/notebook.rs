@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 #[derive(FromRow, Clone, Debug)]
 pub struct NotebookRow {
-    pub id: String,
+    pub id: Uuid,
     pub title: String,
     pub color: String,
     pub created_at: DateTime<Utc>,
@@ -50,7 +50,7 @@ impl NotebookWithNoteRow {
             self.note_modified_at,
         ) {
             return Some(Note {
-                id: id.to_string(),
+                id,
                 title,
                 content,
                 color,
@@ -66,7 +66,7 @@ impl NotebookWithNoteRow {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Notebook {
-    pub id: String,
+    pub id: Uuid,
     pub title: String,
     pub color: String,
     pub notes: Notes,
@@ -96,7 +96,7 @@ impl From<NotebookWithNoteRow> for Notebook {
         }
 
         Self {
-            id: value.notebook_id.to_string(),
+            id: value.notebook_id,
             title: value.notebook_title,
             color: value.notebook_color,
             notes,

@@ -1,16 +1,14 @@
-use std::str::FromStr;
-
 use axum::{Extension, Json};
 use sqlx::{query, query_as};
-use uuid::Uuid;
 
 use crate::{
-    core::error::server_error_response::{ServerErrorResponse, ServerResult},
+    core::error::server_error_response::ServerResult,
     middleware::notebook::NotebookExt,
     models::notebook::{Notebook, NotebookRow, NotebookWithNoteRow, Notebooks, ToNotebooks},
     requests::notebook::{CreateNotebookRequest, UpdateNotebookRequest},
     responses::{message::Message, notebook::NotebookWithMessageResponse},
     routes::main::DBExt,
+    utils::query::QueryUtil,
 };
 
 pub struct NotebookController;
@@ -95,23 +93,12 @@ impl NotebookController {
             "#,
             res_body.title,
             res_body.color,
-            Uuid::from_str(&notebook.id)?,
+            notebook.id,
         )
         .execute(&mut *tx)
         .await?;
 
-        if result.rows_affected() != 1 {
-            tx.rollback().await?;
-
-            let error_message = format!(
-                "Query: {} rows affected but expected 1 row affected",
-                result.rows_affected()
-            );
-
-            return Err(ServerErrorResponse::new_internal_server_error(
-                &error_message,
-            ));
-        }
+        let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
 
         tx.commit().await?;
 
@@ -144,23 +131,12 @@ impl NotebookController {
             DELETE FROM Notebook
             WHERE id = $1
             "#,
-            Uuid::from_str(&notebook.id)?
+            notebook.id
         )
         .execute(&mut *tx)
         .await?;
 
-        if result.rows_affected() != 1 {
-            tx.rollback().await?;
-
-            let error_message = format!(
-                "Query: {} rows affected but expected 1 row affected",
-                result.rows_affected()
-            );
-
-            return Err(ServerErrorResponse::new_internal_server_error(
-                &error_message,
-            ));
-        }
+        let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
 
         tx.commit().await?;
 

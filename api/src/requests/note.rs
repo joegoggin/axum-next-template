@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Serialize, Deserialize, Validate)]
@@ -8,7 +9,7 @@ pub struct CreateNoteRequest {
     #[validate(length(min = 1))]
     pub content: String,
     pub color: Option<String>,
-    pub notebook_id: String,
+    pub notebook_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
