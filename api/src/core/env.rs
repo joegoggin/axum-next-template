@@ -38,9 +38,7 @@ impl Env {
         dotenv().ok();
 
         let database_url = Self::get_var("DATABASE_URL")?;
-        println!("database_url: {:#}", database_url);
         let app_env = Self::get_var("APP_ENV")?;
-        println!("app_env: {:#}", app_env);
 
         Ok(Self {
             database_url,
