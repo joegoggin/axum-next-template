@@ -168,8 +168,44 @@ impl NoteController {
         }
     }
 
-    // TODO: add delete_note controller
-    pub async fn delete_note() -> ServerResult<Json<Message>> {
-        todo!()
+    pub async fn delete_note(
+        Extension(db): DBExt,
+        Extension(note): NoteExt,
+    ) -> ServerResult<Json<Message>> {
+        let mut tx = db.begin().await?;
+
+        let result = query!(
+            r#"
+            DELETE FROM Note 
+            WHERE id = $1
+            "#,
+            note.id
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        let mut tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
+
+        let result = query!(
+            r#"
+            UPDATE Notebook
+            SET
+                modified_at = NOW()
+            WHERE id = $1
+            "#,
+            note.notebook_id,
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
+
+        tx.commit().await?;
+
+        let response = Message {
+            message: "Succesfully deleted Note.".to_string(),
+        };
+
+        Ok(Json::from(response))
     }
 }
