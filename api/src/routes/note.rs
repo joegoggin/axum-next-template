@@ -1,19 +1,19 @@
 use axum::{
-    Router,
+    Router, middleware,
     routing::{delete, get, post, put},
 };
 
-use crate::controllers::note::NoteController;
+use crate::{controllers::note::NoteController, middleware::note::NoteMiddleware};
 
 pub struct NoteRouter;
 
 impl NoteRouter {
     pub fn new() -> Router {
-        // TODO: include add_note_extension middleware
         let note_id_router: Router = Router::new()
             .route("/", get(NoteController::get_note))
             .route("/", put(NoteController::update_note))
-            .route("/", delete(NoteController::delete_note));
+            .route("/", delete(NoteController::delete_note))
+            .layer(middleware::from_fn(NoteMiddleware::add_note_extension));
 
         Router::new()
             .route("/", post(NoteController::create_note))

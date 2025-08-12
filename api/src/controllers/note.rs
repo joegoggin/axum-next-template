@@ -6,6 +6,7 @@ use crate::{
         server_error::ServerError,
         server_error_response::{ServerErrorResponse, ServerResult},
     },
+    middleware::note::NoteExt,
     models::note::{Note, Notes},
     requests::note::CreateNoteRequest,
     responses::{message::Message, note::NoteWithMessageResponse},
@@ -100,9 +101,8 @@ impl NoteController {
         Ok(Json::from(notes))
     }
 
-    // TODO: add get_note controller
-    pub async fn get_note() -> ServerResult<Json<Note>> {
-        todo!()
+    pub async fn get_note(Extension(note): NoteExt) -> ServerResult<Json<Note>> {
+        Ok(Json::from(note))
     }
 
     // TODO: add update_note controller
