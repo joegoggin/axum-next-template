@@ -78,7 +78,7 @@ impl NotebookController {
     pub async fn update_notebook(
         Extension(db): DBExt,
         Extension(notebook): NotebookExt,
-        Json(res_body): Json<UpdateNotebookRequest>,
+        Json(req_body): Json<UpdateNotebookRequest>,
     ) -> ServerResult<Json<NotebookWithMessageResponse>> {
         let mut tx = db.begin().await?;
 
@@ -91,8 +91,8 @@ impl NotebookController {
                 modified_at = NOW()
             WHERE id = $3
             "#,
-            res_body.title,
-            res_body.color,
+            req_body.title,
+            req_body.color,
             notebook.id,
         )
         .execute(&mut *tx)
@@ -104,11 +104,11 @@ impl NotebookController {
 
         let mut notebook = notebook.clone();
 
-        if let Some(title) = res_body.title {
+        if let Some(title) = req_body.title {
             notebook.title = title;
         }
 
-        if let Some(color) = res_body.color {
+        if let Some(color) = req_body.color {
             notebook.color = color;
         }
 

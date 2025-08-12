@@ -17,4 +17,5 @@ pub struct UpdateNoteRequest {
     pub title: Option<String>,
     pub content: Option<String>,
     pub color: Option<String>,
+    pub notebook_id: Option<Uuid>,
 }

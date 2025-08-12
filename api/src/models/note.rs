@@ -8,7 +8,7 @@ pub struct Note {
     pub title: String,
     pub content: String,
     pub color: String,
-    pub notebook_id: String,
+    pub notebook_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub modified_at: DateTime<Utc>,
 }

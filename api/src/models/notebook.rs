@@ -54,7 +54,7 @@ impl NotebookWithNoteRow {
                 title,
                 content,
                 color,
-                notebook_id: self.notebook_id.to_string(),
+                notebook_id: self.notebook_id,
                 created_at,
                 modified_at,
             });
