@@ -85,9 +85,19 @@ impl NoteController {
         Ok(Json::from(response))
     }
 
-    //  TODO: add get_notes controller
-    pub async fn get_notes() -> ServerResult<Json<Notes>> {
-        todo!()
+    pub async fn get_notes(Extension(db): DBExt) -> ServerResult<Json<Notes>> {
+        let notes = query_as!(
+            Note,
+            r#"
+            SELECT * 
+            FROM Note
+            ORDER BY modified_at DESC
+            "#,
+        )
+        .fetch_all(&db)
+        .await?;
+
+        Ok(Json::from(notes))
     }
 
     // TODO: add get_note controller
