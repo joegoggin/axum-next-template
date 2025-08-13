@@ -1,3 +1,4 @@
+use anyhow::Error;
 use axum::serve;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
@@ -42,14 +43,16 @@ impl Server {
                 "docker exec -i axum-next-template_postgres psql -U postgres -d postgres -f /tmp/list.sql"
             )
             .run_with_output()
-            .await?;
+            .await
+            .map_err(|e| Error::msg(format!("Failed to list databases: {}", e)))?;
 
             if !result.contains("axum-next-template") {
-                Logger::log_message("Createing Database");
+                Logger::log_message("Creating Database");
 
                 TerminalCommand::new("docker exec -i axum-next-template_postgres psql -U postgres -d postgres -f /tmp/init.sql")
                     .run()
-                    .await?;
+                    .await
+                    .map_err(|e| Error::msg(format!("Failed to initialize database: {}", e)))?;
 
                 Logger::log_success("Successfully Created Database");
             }
