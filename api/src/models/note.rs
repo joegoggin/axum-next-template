@@ -14,7 +14,3 @@ pub struct Note {
 }
 
 pub type Notes = Vec<Note>;
-
-pub trait ToNotes {
-    fn to_notes(&self) -> Notes;
-}
