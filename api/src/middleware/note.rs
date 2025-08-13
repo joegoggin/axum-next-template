@@ -32,7 +32,7 @@ impl NoteMiddleware {
             r#"
             SELECT *
             FROM Note
-            WHERE id = $1  
+            WHERE id = $1
             "#,
             note_id
         )
