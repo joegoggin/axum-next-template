@@ -2,7 +2,7 @@ use axum::{Extension, Json};
 use sqlx::{query, query_as};
 
 use crate::{
-    core::error::server_error_response::ServerResult,
+    core::error::server_error_response::{ServerErrorResponse, ServerResult},
     middleware::notebook::NotebookExt,
     models::notebook::{Notebook, NotebookRow, NotebookWithNoteRow, Notebooks, ToNotebooks},
     requests::notebook::{CreateNotebookRequest, UpdateNotebookRequest},
@@ -84,41 +84,45 @@ impl NotebookController {
     ) -> ServerResult<Json<NotebookWithMessageResponse>> {
         let mut tx = db.begin().await?;
 
-        let result = query!(
+        let notebook_row = query_as!(
+            NotebookRow,
             r#"
             UPDATE Notebook
             SET 
                 title = COALESCE($1, title),
                 color = COALESCE($2, color)
             WHERE id = $3
+            RETURNING
+                id, title, color, created_at, modified_at
             "#,
             req_body.title,
             req_body.color,
             notebook.id,
         )
-        .execute(&mut *tx)
-        .await?;
+        .fetch_one(&mut *tx)
+        .await;
 
-        let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
+        match notebook_row {
+            Ok(notebook_row) => {
+                tx.commit().await?;
 
-        tx.commit().await?;
+                let mut new_notebook: Notebook = notebook_row.into();
 
-        let mut notebook = notebook.clone();
+                new_notebook.notes = notebook.notes.clone();
 
-        if let Some(title) = req_body.title {
-            notebook.title = title;
+                let response = NotebookWithMessageResponse {
+                    notebook,
+                    message: "Successfully updated Notebook.".to_string(),
+                };
+
+                Ok(Json::from(response))
+            }
+            Err(error) => {
+                tx.rollback().await?;
+
+                Err(ServerErrorResponse::new_internal_server_error(error))
+            }
         }
-
-        if let Some(color) = req_body.color {
-            notebook.color = color;
-        }
-
-        let response = NotebookWithMessageResponse {
-            notebook,
-            message: "Successfully updated Notebook.".to_string(),
-        };
-
-        Ok(Json::from(response))
     }
 
     pub async fn delete_notebook(
