@@ -5,6 +5,8 @@ export type Notebook = {
     title: string;
     color: string;
     notes: Notes;
+    created_at: string;
+    modified_at: string;
 };
 
 export type Notebooks = Notebook[];
