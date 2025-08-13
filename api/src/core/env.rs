@@ -21,7 +21,7 @@ impl AppEnv {
         }
 
         return Err(Error::msg(format!(
-            "Failed to create `ENV`.\n`{}` is not a vaild `AppEnv`.",
+            "Failed to create `ENV`.\n`{}` is not a valid `AppEnv`.",
             string
         )));
     }
