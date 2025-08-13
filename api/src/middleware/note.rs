@@ -23,7 +23,7 @@ pub struct NoteMiddleware;
 impl NoteMiddleware {
     pub async fn add_note_extension(
         Extension(db): DBExt,
-        Path(note_id): Path<String>,
+        Path(note_id): Path<Uuid>,
         mut req: Request,
         next: Next,
     ) -> ServerResult<Response> {
@@ -34,7 +34,7 @@ impl NoteMiddleware {
             FROM Note
             WHERE id = $1  
             "#,
-            Uuid::from_str(&note_id)?
+            note_id
         )
         .fetch_optional(&db)
         .await?;
