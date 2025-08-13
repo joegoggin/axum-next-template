@@ -75,7 +75,7 @@ impl From<sqlx::Error> for ServerErrorResponse {
 
 impl From<uuid::Error> for ServerErrorResponse {
     fn from(value: uuid::Error) -> Self {
-        let error_message = format!("UUID: {}", value.to_string());
+        let error_message = format!("UUID: {}", value);
 
         ServerErrorResponse::new_internal_server_error(error_message)
     }
