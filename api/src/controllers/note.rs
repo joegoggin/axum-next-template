@@ -169,7 +169,7 @@ impl NoteController {
         tx.commit().await?;
 
         let response = Message {
-            message: "Succesfully deleted Note.".to_string(),
+            message: "Successfully deleted Note.".to_string(),
         };
 
         Ok(Json::from(response))
