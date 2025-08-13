@@ -66,9 +66,9 @@ impl Server {
 
         let listener = TcpListener::bind("0.0.0.0:8000").await?;
         let db = PgPool::connect(&self.env.database_url).await?;
-        let rotuer = MainRouter::new(db);
+        let router = MainRouter::new(db);
 
-        serve(listener, rotuer).await?;
+        serve(listener, router).await?;
 
         Ok(())
     }
