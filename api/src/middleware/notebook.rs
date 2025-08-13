@@ -23,7 +23,7 @@ pub struct NotebookMiddleware;
 impl NotebookMiddleware {
     pub async fn add_notebook_extension(
         Extension(db): DBExt,
-        Path(notebook_id): Path<String>,
+        Path(notebook_id): Path<Uuid>,
         mut req: Request,
         next: Next,
     ) -> ServerResult<Response> {
@@ -42,12 +42,11 @@ impl NotebookMiddleware {
                 note.color as "note_color?",
                 note.created_at as "note_created_at?",
                 note.modified_at as "note_modified_at?"
-            FROM Notebook n
+            FROM (SELECT * FROM Notebook WHERE id = $1 LIMIT 1) n
             LEFT JOIN Note note ON n.id = note.notebook_id
-            WHERE n.id = $1
             ORDER BY note.modified_at DESC 
             "#,
-            Uuid::from_str(&notebook_id)?
+            notebook_id
         )
         .fetch_all(&db)
         .await?;
