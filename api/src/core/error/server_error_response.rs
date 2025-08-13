@@ -67,7 +67,7 @@ impl IntoResponse for ServerErrorResponse {
 
 impl From<sqlx::Error> for ServerErrorResponse {
     fn from(value: sqlx::Error) -> Self {
-        let error_message = format!("SQLx: {}", value.to_string());
+        let error_message = format!("SQLx: {}", value);
 
         ServerErrorResponse::new_internal_server_error(error_message)
     }
