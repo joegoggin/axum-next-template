@@ -18,9 +18,11 @@ impl NotebookController {
         Extension(db): DBExt,
         Json(req_body): Json<CreateNotebookRequest>,
     ) -> ServerResult<Json<NotebookWithMessageResponse>> {
+        const DEFAULT_COLOR: &str = "#4b98ff";
+
         let color = match req_body.color {
             Some(color) => color,
-            None => "#4b98ff".to_string(),
+            None => DEFAULT_COLOR.to_string(),
         };
 
         let notebook_row = query_as!(
