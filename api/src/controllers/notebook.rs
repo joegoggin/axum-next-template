@@ -87,8 +87,7 @@ impl NotebookController {
             UPDATE Notebook
             SET 
                 title = COALESCE($1, title),
-                color = COALESCE($2, color), 
-                modified_at = NOW()
+                color = COALESCE($2, color)
             WHERE id = $3
             "#,
             req_body.title,

@@ -60,30 +60,25 @@ impl NoteController {
             req_body.notebook_id
         )
         .fetch_one(&mut *tx)
-        .await?;
+        .await;
 
-        let result = query!(
-            r#"
-            UPDATE Notebook 
-            SET
-                modified_at = Now()
-            WHERE id = $1
-            "#,
-            req_body.notebook_id
-        )
-        .execute(&mut *tx)
-        .await?;
+        match note {
+            Ok(note) => {
+                tx.commit().await?;
 
-        let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
+                let response = NoteWithMessageResponse {
+                    note,
+                    message: "Successfully created Note".to_string(),
+                };
 
-        tx.commit().await?;
+                Ok(Json::from(response))
+            }
+            Err(error) => {
+                tx.rollback().await?;
 
-        let response = NoteWithMessageResponse {
-            note,
-            message: "Successfully created notebook".to_string(),
-        };
-
-        Ok(Json::from(response))
+                Err(ServerErrorResponse::new_internal_server_error(error))
+            }
+        }
     }
 
     pub async fn get_notes(Extension(db): DBExt) -> ServerResult<Json<Notes>> {
@@ -120,8 +115,7 @@ impl NoteController {
                 title = COALESCE($1, title),
                 content = COALESCE($2, content),
                 color = COALESCE($3, color), 
-                notebook_id = COALESCE($4, notebook_id),
-                modified_at = NOW()
+                notebook_id = COALESCE($4, notebook_id)
             WHERE id = $5
             RETURNING
                 id, title, content, color, notebook_id, created_at, modified_at
@@ -137,20 +131,6 @@ impl NoteController {
 
         match note {
             Ok(note) => {
-                let result = query!(
-                    r#"
-                    UPDATE Notebook
-                    SET
-                        modified_at = NOW()
-                    WHERE id = $1
-                    "#,
-                    note.notebook_id
-                )
-                .execute(&mut *tx)
-                .await?;
-
-                let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
-
                 tx.commit().await?;
 
                 let response = NoteWithMessageResponse {
@@ -180,20 +160,6 @@ impl NoteController {
             WHERE id = $1
             "#,
             note.id
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        let mut tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
-
-        let result = query!(
-            r#"
-            UPDATE Notebook
-            SET
-                modified_at = NOW()
-            WHERE id = $1
-            "#,
-            note.notebook_id,
         )
         .execute(&mut *tx)
         .await?;

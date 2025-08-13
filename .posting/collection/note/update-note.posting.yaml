@@ -1,10 +1,10 @@
 name: update_note
 method: PUT
-url: $API_URL/note/c872cc8a-6e45-4377-a57b-b4c29698aebb
+url: $API_URL/note/3f3c9338-b354-498f-9688-df1188283556
 body:
   content: |-
     {
-      "notebookId": "6eddf0a5-fe04-4b9a-86a9-8b106ecccbff"
+      "content": "this note was just modified."
     }
   content_type: application/json
 headers:
