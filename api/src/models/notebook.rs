@@ -112,7 +112,7 @@ impl TryFrom<Vec<NotebookWithNoteRow>> for Notebook {
     fn try_from(rows: Vec<NotebookWithNoteRow>) -> Result<Self, Self::Error> {
         if rows.is_empty() {
             return Err(ServerErrorResponse::new_internal_server_error(
-                "Failed to covert `Vec<NotebookWithNoteRow>` to `Notebook`.",
+                "Failed to convert `Vec<NotebookWithNoteRow>` to `Notebook`.",
             ));
         }
 
