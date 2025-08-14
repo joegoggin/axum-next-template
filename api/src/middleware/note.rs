@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use axum::{
     Extension,
     extract::{Path, Request},

@@ -1,5 +1,4 @@
-use sqlx::{Postgres, Transaction, query};
-use uuid::Uuid;
+use sqlx::{Postgres, Transaction};
 
 use crate::core::error::server_error_response::{ServerErrorResponse, ServerResult};
 
