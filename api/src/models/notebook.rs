@@ -118,11 +118,7 @@ impl TryFrom<Vec<NotebookWithNoteRow>> for Notebook {
 
         let mut notebook: Notebook = rows[0].clone().into();
 
-        for (i, row) in rows.iter().enumerate() {
-            if i == 0 {
-                continue;
-            }
-
+        for row in rows.iter().skip(1) {
             if let Some(note) = row.get_note() {
                 notebook.notes.push(note);
             }
