@@ -21,7 +21,7 @@ impl Display for Table {
 pub struct QueryUtil;
 
 impl QueryUtil {
-    pub async fn verify_one_row_effected<'a>(
+    pub async fn verify_one_row_affected<'a>(
         rows_affected: u64,
         tx: Transaction<'a, Postgres>,
     ) -> ServerResult<Transaction<'a, Postgres>> {

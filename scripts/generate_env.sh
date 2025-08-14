@@ -17,12 +17,16 @@ echo "NEXT_PUBLIC_API_URL=\"http://localhost:8000\"" >>./client/.env
 rm -rf ./docker/env
 mkdir ./docker/env
 
-echo "POSTGRES_USER=\"postgres\"" >>./docker/env/postgres.env
-echo "POSTGRES_PASSWORD=\"$PASSWORD\"" >>./docker/env/postgres.env
+{
+	echo "POSTGRES_USER=\"postgres\""
+	echo "POSTGRES_PASSWORD=\"$PASSWORD\""
+} >>./docker/env/postgres.env
 
-echo "PGADMIN_DEFAULT_EMAIL=\"$EMAIL\"" >>./docker/env/pgadmin.env
-echo "PGADMIN_DEFAULT_PASSWORD=\"$PASSWORD\"" >>./docker/env/pgadmin.env
-echo "PGADMIN_CONFIG_SERVER_MODE=\"False\"" >>./docker/env/pgadmin.env
+{
+	echo "PGADMIN_DEFAULT_EMAIL=\"$EMAIL\""
+	echo "PGADMIN_DEFAULT_PASSWORD=\"$PASSWORD\""
+	echo "PGADMIN_CONFIG_SERVER_MODE=\"False\""
+} >>./docker/env/pgadmin.env
 
 # Posting
 rm -rf ./.posting/.env

@@ -164,7 +164,7 @@ impl NoteController {
         .execute(&mut *tx)
         .await?;
 
-        let tx = QueryUtil::verify_one_row_effected(result.rows_affected(), tx).await?;
+        let tx = QueryUtil::verify_one_row_affected(result.rows_affected(), tx).await?;
 
         tx.commit().await?;
 
