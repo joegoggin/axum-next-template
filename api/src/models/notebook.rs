@@ -136,12 +136,12 @@ pub trait ToNotebooks {
 
 impl ToNotebooks for Vec<NotebookWithNoteRow> {
     fn to_notebooks(&self) -> Notebooks {
-        let mut notebook_map: HashMap<String, Notebook> = HashMap::new();
+        let mut notebook_map: HashMap<Uuid, Notebook> = HashMap::new();
 
         for row in self {
-            let notebook_id = row.notebook_id.to_string();
+            let notebook_id = row.notebook_id;
 
-            match notebook_map.entry(notebook_id.clone()) {
+            match notebook_map.entry(notebook_id) {
                 Entry::Occupied(mut entry) => {
                     let notebook = entry.get_mut();
 
