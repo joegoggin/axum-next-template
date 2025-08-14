@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use sqlx::{Postgres, Transaction};
 
 use crate::core::error::server_error_response::{ServerErrorResponse, ServerResult};
@@ -7,11 +9,11 @@ pub enum Table {
     Notebook,
 }
 
-impl ToString for Table {
-    fn to_string(&self) -> String {
+impl Display for Table {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Note => "Note".to_string(),
-            Self::Notebook => "Notebook".to_string(),
+            Self::Note => write!(f, "Note"),
+            Self::Notebook => write!(f, "Notebook"),
         }
     }
 }
