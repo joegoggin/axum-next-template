@@ -64,7 +64,7 @@ impl NotebookController {
                 note.modified_at as "note_modified_at?"
             FROM Notebook n
             LEFT JOIN Note note ON n.id = note.notebook_id
-            ORDER BY n.modified_at DESC, note.modified_at DESC
+            ORDER BY n.modified_at DESC, note.modified_at DESC NULLS LAST
             "#
         )
         .fetch_all(&db)
