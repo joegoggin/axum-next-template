@@ -1,0 +1,3 @@
+name: delete_note
+method: DELETE
+url: $API_URL/note/c872cc8a-6e45-4377-a57b-b4c29698aebb

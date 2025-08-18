@@ -1,0 +1,15 @@
+name: create_note
+method: POST
+url: $API_URL/note
+body:
+  content: |-
+    {
+      "title": "Note 1",
+      "content": "This is a note",
+      "color": "#1fd669",
+      "notebook_id": "b04fc34e-9dd1-4aa5-bf4e-c3044678a91a"
+    }
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json

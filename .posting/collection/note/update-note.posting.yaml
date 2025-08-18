@@ -1,0 +1,12 @@
+name: update_note
+method: PUT
+url: $API_URL/note/3f3c9338-b354-498f-9688-df1188283556
+body:
+  content: |-
+    {
+      "content": "this note was just modified."
+    }
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json

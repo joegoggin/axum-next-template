@@ -39,11 +39,8 @@ api-remove *args:
 
 # database
 db-migrate *args:
-	cd api && sea-orm-cli migrate {{args}}
+	cd api && sqlx migrate {{args}}
 
-db-generate:
-	cd api && sea-orm-cli generate entity -o entity/src  
-
-db-push:
-	just db-migrate up
-	just db-generate 
+# posting
+posting:
+	posting --collection ./.posting/collection --env ./.posting/.env

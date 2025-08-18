@@ -1,14 +1,9 @@
-use std::error::Error;
-
 use axum::{
     Json, RequestExt,
-    extract::{
-        FromRequest, Request,
-        rejection::{JsonDataError, JsonRejection},
-    },
+    extract::{FromRequest, Request, rejection::JsonRejection},
     http::StatusCode,
 };
-use log::{debug, error, kv::source};
+use log::error;
 use serde::de::DeserializeOwned;
 use validator::Validate;
 

@@ -1,0 +1,13 @@
+name: create_notebook
+method: POST
+url: $API_URL/notebook
+body:
+  content: |-
+    {
+       "title": "My Notebook",
+       "color": "#4b98ff"
+    }
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json

@@ -3,7 +3,7 @@ use axum::{
     http::{HeaderName, Method},
     middleware,
 };
-use sea_orm::DatabaseConnection;
+use sqlx::{Pool, Postgres};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::core::logger::Logger;
@@ -12,10 +12,10 @@ use super::{note::NoteRouter, notebook::NotebookRouter};
 
 pub struct MainRouter;
 
-pub type DBExt = Extension<DatabaseConnection>;
+pub type DBExt = Extension<Pool<Postgres>>;
 
 impl MainRouter {
-    pub fn new(db: DatabaseConnection) -> Router {
+    pub fn new(db: Pool<Postgres>) -> Router {
         let cors = CorsLayer::new()
             .allow_methods([Method::POST, Method::GET, Method::PUT, Method::DELETE])
             .allow_origin(Any)

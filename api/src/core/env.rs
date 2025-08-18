@@ -21,7 +21,7 @@ impl AppEnv {
         }
 
         return Err(Error::msg(format!(
-            "Failed to create ENV.\n{} is not a vaild AppEnv.",
+            "Failed to create `ENV`.\n`{}` is not a valid `AppEnv`.",
             string
         )));
     }
@@ -37,8 +37,8 @@ impl Env {
     pub fn new() -> AppResult<Self> {
         dotenv().ok();
 
-        let database_url = env::var("DATABASE_URL")?;
-        let app_env = env::var("APP_ENV")?;
+        let database_url = Self::get_var("DATABASE_URL")?;
+        let app_env = Self::get_var("APP_ENV")?;
 
         Ok(Self {
             database_url,
@@ -50,6 +50,17 @@ impl Env {
         match self.app_env {
             AppEnv::Dev => true,
             AppEnv::Prod => false,
+        }
+    }
+
+    fn get_var(var: &str) -> AppResult<String> {
+        match env::var(var) {
+            Ok(value) if !value.trim().is_empty() => Ok(value),
+            _ => {
+                let error_message = format!("`{}` environment variable not set.", var);
+
+                Err(Error::msg(error_message))
+            }
         }
     }
 }

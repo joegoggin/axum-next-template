@@ -1,5 +1,5 @@
+use anyhow::Error;
 use axum::serve;
-use sea_orm::Database;
 use tokio::net::TcpListener;
 
 use crate::{routes::main::MainRouter, utils::terminal_command::TerminalCommand};
@@ -17,6 +17,7 @@ impl Server {
 
     pub async fn start(&self) -> AppResult<()> {
         self.start_docker().await?;
+        self.create_database().await?;
         self.start_server().await?;
 
         Ok(())
@@ -35,14 +36,45 @@ impl Server {
         Ok(())
     }
 
+    async fn create_database(&self) -> AppResult<()> {
+        if self.env.is_dev_mode() {
+            let result = TerminalCommand::new(
+                "docker exec -i axum-next-template_postgres psql -U postgres -d postgres -f /tmp/list.sql"
+            )
+            .run_with_output()
+            .await
+            .map_err(|e| Error::msg(format!("Failed to list databases: {}", e)))?;
+
+            if !result.contains("axum-next-template") {
+                Logger::log_message("Creating Database");
+
+                TerminalCommand::new("docker exec -i axum-next-template_postgres psql -U postgres -d postgres -f /tmp/init.sql")
+                    .run()
+                    .await
+                    .map_err(|e| Error::msg(format!("Failed to initialize database: {}", e)))?;
+
+                Logger::log_success("Successfully Created Database");
+            }
+        }
+
+        Ok(())
+    }
+
     async fn start_server(&self) -> AppResult<()> {
-        Logger::log_success("Server running on port 8000");
+        Logger::log_success("Server Running On Port 8000");
+
+        let db = sqlx::postgres::PgPoolOptions::new()
+            .max_connections(10)
+            .acquire_timeout(std::time::Duration::from_secs(15))
+            .connect(&self.env.database_url)
+            .await?;
+
+        sqlx::migrate!().run(&db).await?;
 
         let listener = TcpListener::bind("0.0.0.0:8000").await?;
-        let db = Database::connect(self.env.database_url.clone()).await?;
-        let rotuer = MainRouter::new(db);
+        let router = MainRouter::new(db);
 
-        serve(listener, rotuer).await?;
+        serve(listener, router).await?;
 
         Ok(())
     }

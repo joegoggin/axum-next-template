@@ -1,11 +1,8 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use axum::{Json, http::StatusCode, response::IntoResponse};
 use log::error;
-use sea_orm::DbErr;
 use serde_json::json;
-
-use crate::utils::sea_orm::{NoReqBody, handle_sea_orm_error};
 
 use super::server_error::{ServerError, ServerErrors};
 
@@ -43,11 +40,11 @@ impl ServerErrorResponse {
 
     pub fn new_internal_server_error<T>(error: T) -> Self
     where
-        T: Debug,
+        T: Display,
     {
         let mut errors = Vec::new();
 
-        error!("Error: {:#?}", error);
+        error!("Error: {}", error);
 
         errors.push(ServerError::new(None, "Something went wrong."));
 
@@ -68,9 +65,25 @@ impl IntoResponse for ServerErrorResponse {
     }
 }
 
-impl From<DbErr> for ServerErrorResponse {
-    fn from(value: DbErr) -> Self {
-        handle_sea_orm_error(value, &NoReqBody)
+impl From<sqlx::Error> for ServerErrorResponse {
+    fn from(value: sqlx::Error) -> Self {
+        match value {
+            sqlx::Error::RowNotFound => {
+                ServerErrorResponse::new_with_message(StatusCode::NOT_FOUND, "Resource not found.")
+            }
+            e => {
+                let error_message = format!("SQLx: {e}");
+                ServerErrorResponse::new_internal_server_error(error_message)
+            }
+        }
+    }
+}
+
+impl From<uuid::Error> for ServerErrorResponse {
+    fn from(value: uuid::Error) -> Self {
+        let error_message = format!("Invalid UUID: {}", value);
+
+        ServerErrorResponse::new_with_message(StatusCode::BAD_REQUEST, error_message)
     }
 }
 

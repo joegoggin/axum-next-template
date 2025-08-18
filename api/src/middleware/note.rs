@@ -5,15 +5,16 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use entity::note;
-use sea_orm::{EntityTrait, prelude::Uuid};
+use sqlx::query_as;
+use uuid::Uuid;
 
 use crate::{
     core::error::server_error_response::{ServerErrorResponse, ServerResult},
+    models::note::Note,
     routes::main::DBExt,
 };
 
-pub type NoteModelExt = Extension<note::Model>;
+pub type NoteExt = Extension<Note>;
 
 pub struct NoteMiddleware;
 
@@ -24,22 +25,32 @@ impl NoteMiddleware {
         mut req: Request,
         next: Next,
     ) -> ServerResult<Response> {
-        let model = note::Entity::find_by_id(note_id).one(&db).await?;
+        let note = query_as!(
+            Note,
+            r#"
+            SELECT *
+            FROM Note
+            WHERE id = $1
+            "#,
+            note_id
+        )
+        .fetch_optional(&db)
+        .await?;
 
-        match model {
-            Some(model) => {
-                req.extensions_mut().insert(model);
+        match note {
+            Some(note) => {
+                req.extensions_mut().insert(note);
+
+                Ok(next.run(req).await.into_response())
             }
             None => {
-                let message = format!("Note with id of {} not found.", note_id);
+                let error_message = format!("Note with id of {} not found.", note_id);
 
-                return Err(ServerErrorResponse::new_with_message(
+                Err(ServerErrorResponse::new_with_message(
                     StatusCode::NOT_FOUND,
-                    &message,
-                ));
+                    error_message,
+                ))
             }
         }
-
-        Ok(next.run(req).await.into_response())
     }
 }

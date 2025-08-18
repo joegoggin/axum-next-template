@@ -1,14 +1,17 @@
-use axum::{Extension, Json};
-use entity::note;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
+use axum::{Extension, Json, http::StatusCode};
+use sqlx::{query, query_as};
 
 use crate::{
-    core::{error::server_error_response::ServerResult, validated_json::ValidatedJson},
-    middleware::note::NoteModelExt,
-    models::note::{Note, Notes, ToNotes},
+    core::error::{
+        server_error::ServerError,
+        server_error_response::{ServerErrorResponse, ServerResult},
+    },
+    middleware::note::NoteExt,
+    models::note::{Note, Notes},
     requests::note::{CreateNoteRequest, UpdateNoteRequest},
     responses::{message::Message, note::NoteWithMessageResponse},
     routes::main::DBExt,
+    utils::query::QueryUtil,
 };
 
 pub struct NoteController;
@@ -16,82 +19,159 @@ pub struct NoteController;
 impl NoteController {
     pub async fn create_note(
         Extension(db): DBExt,
-        ValidatedJson(req_body): ValidatedJson<CreateNoteRequest>,
+        Json(req_body): Json<CreateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
-        let mut active_model = note::ActiveModel {
-            title: Set(req_body.title),
-            content: Set(req_body.content),
-            notebook_id: Set(req_body.notebook_id),
-            ..Default::default()
-        };
+        let mut tx = db.begin().await?;
 
-        if let Some(color) = req_body.color {
-            active_model.color = Set(color)
+        let row = query!(
+            r#"
+            SELECT id
+            FROM Notebook
+            WHERE id = $1
+            "#,
+            req_body.notebook_id,
+        )
+        .fetch_optional(&mut *tx)
+        .await?;
+
+        if row.is_none() {
+            tx.rollback().await?;
+
+            let error_message =
+                format!("`Notebook` with id of {} not found.", req_body.notebook_id);
+            let error = ServerError::new(Some("notebook_id"), &error_message);
+
+            return Err(ServerErrorResponse::new_with_single_error(
+                StatusCode::NOT_FOUND,
+                error,
+            ));
         }
 
-        let model = note::Entity::insert(active_model)
-            .exec_with_returning(&db)
-            .await?;
+        let note = query_as!(
+            Note,
+            r#"
+            INSERT INTO Note (title, content, color, notebook_id)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id, title, content, color, notebook_id, created_at, modified_at
+            "#,
+            req_body.title,
+            req_body.content,
+            req_body.color,
+            req_body.notebook_id
+        )
+        .fetch_one(&mut *tx)
+        .await;
 
-        let response = NoteWithMessageResponse {
-            note: model.into(),
-            message: "Successfully created note.".to_string(),
-        };
+        match note {
+            Ok(note) => {
+                tx.commit().await?;
 
-        Ok(Json(response))
+                let response = NoteWithMessageResponse {
+                    note,
+                    message: "Successfully created Note".to_string(),
+                };
+
+                Ok(Json::from(response))
+            }
+            Err(error) => {
+                tx.rollback().await?;
+
+                Err(ServerErrorResponse::new_internal_server_error(error))
+            }
+        }
     }
 
     pub async fn get_notes(Extension(db): DBExt) -> ServerResult<Json<Notes>> {
-        let notes: Notes = note::Entity::find().all(&db).await?.to_notes();
+        let notes = query_as!(
+            Note,
+            r#"
+            SELECT * 
+            FROM Note
+            ORDER BY modified_at DESC
+            "#,
+        )
+        .fetch_all(&db)
+        .await?;
 
-        Ok(Json(notes))
+        Ok(Json::from(notes))
     }
 
-    pub async fn get_note(Extension(note_model): NoteModelExt) -> ServerResult<Json<Note>> {
-        let note: Note = note_model.into();
-
-        Ok(Json(note))
+    pub async fn get_note(Extension(note): NoteExt) -> ServerResult<Json<Note>> {
+        Ok(Json::from(note))
     }
 
     pub async fn update_note(
         Extension(db): DBExt,
-        Extension(note_model): NoteModelExt,
+        Extension(note): NoteExt,
         Json(req_body): Json<UpdateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
-        let mut active_model: note::ActiveModel = note_model.into();
+        let mut tx = db.begin().await?;
 
-        if let Some(title) = req_body.title {
-            active_model.title = Set(title);
+        let note = query_as!(
+            Note,
+            r#"
+            UPDATE Note
+            SET 
+                title = COALESCE($1, title),
+                content = COALESCE($2, content),
+                color = COALESCE($3, color), 
+                notebook_id = COALESCE($4, notebook_id)
+            WHERE id = $5
+            RETURNING
+                id, title, content, color, notebook_id, created_at, modified_at
+            "#,
+            req_body.title,
+            req_body.content,
+            req_body.color,
+            req_body.notebook_id,
+            note.id
+        )
+        .fetch_one(&mut *tx)
+        .await;
+
+        match note {
+            Ok(note) => {
+                tx.commit().await?;
+
+                let response = NoteWithMessageResponse {
+                    note,
+                    message: "Successfully updated Note.".to_string(),
+                };
+
+                Ok(Json::from(response))
+            }
+            Err(error) => {
+                tx.rollback().await?;
+
+                Err(ServerErrorResponse::new_internal_server_error(error))
+            }
         }
-
-        if let Some(content) = req_body.content {
-            active_model.content = Set(content);
-        }
-
-        if let Some(color) = req_body.color {
-            active_model.color = Set(color);
-        }
-
-        let updated_model = active_model.update(&db).await?;
-
-        let response = NoteWithMessageResponse {
-            note: updated_model.into(),
-            message: "Note successfully updated.".to_string(),
-        };
-
-        Ok(Json(response))
     }
 
     pub async fn delete_note(
         Extension(db): DBExt,
-        Extension(note_model): NoteModelExt,
+        Extension(note): NoteExt,
     ) -> ServerResult<Json<Message>> {
-        note::Entity::delete_by_id(note_model.id).exec(&db).await?;
+        let mut tx = db.begin().await?;
+
+        let result = query!(
+            r#"
+            DELETE FROM Note 
+            WHERE id = $1
+            "#,
+            note.id
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        let tx = QueryUtil::verify_one_row_affected(result.rows_affected(), tx).await?;
+
+        tx.commit().await?;
 
         let response = Message {
-            message: "Note successfully deleted.".to_string(),
+            message: "Successfully deleted Note.".to_string(),
         };
 
-        Ok(Json(response))
+        Ok(Json::from(response))
     }
 }

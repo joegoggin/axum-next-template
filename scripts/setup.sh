@@ -6,5 +6,5 @@ sleep 1
 
 docker exec -e PGPASSWORD="$PASSWORD" axum-next-template_postgres psql -U postgres -d postgres -f "/tmp/init.sql"
 
-just db-push
+just db-migrate run
 cd client && yarn

@@ -10,10 +10,10 @@ impl App {
     }
 
     pub async fn run(&self) -> AppResult<()> {
+        Logger::setup_logging();
+
         let env = Env::new()?;
         let server = Server::new(env);
-
-        Logger::setup_logging();
 
         server.start().await?;
 

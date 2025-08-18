@@ -2,21 +2,33 @@ read -r -p "Enter your pgadmin email: " EMAIL
 read -r -sp "Enter your postgres password: " PASSWORD
 echo
 
-if [ ! -f ./api/.env ]; then
-    echo "DATABASE_URL=\"postgresql://postgres:$PASSWORD@localhost:5432/axum-next-template\"" >>./api/.env
-fi
+# API
+rm -rf ./api/.env
 
-if [ ! -f ./client/.env ]; then
-    echo "NEXT_PUBLIC_API_URL=\"http://localhost:8000\"" >>./client/.env
-fi
+echo "DATABASE_URL=\"postgresql://postgres:$PASSWORD@localhost:5432/axum-next-template\"" >>./api/.env
+echo "APP_ENV=\"dev\"" >>./api/.env
 
-if [ ! -f ./env/postgres.env ]; then
-    echo "POSTGRES_USER=\"postgres\"" >>./docker/postgres/postgres.env
-    echo "POSTGRES_PASSWORD=\"$PASSWORD\"" >>./docker/postgres/postgres.env
-fi
+# Client
+rm -rf ./client/.env
 
-if [ ! -f ./env/pgadmin.env ]; then
-    echo "PGADMIN_DEFAULT_EMAIL=\"$EMAIL\"" >>./docker/pgadmin/pgadmin.env
-    echo "PGADMIN_DEFAULT_PASSWORD=\"$PASSWORD\"" >>./docker/pgadmin/pgadmin.env
-    echo "PGADMIN_CONFIG_SERVER_MODE=\"False\"" >>./docker/pgadmin/pgadmin.env
-fi
+echo "NEXT_PUBLIC_API_URL=\"http://localhost:8000\"" >>./client/.env
+
+# Docker
+rm -rf ./docker/env
+mkdir ./docker/env
+
+{
+	echo "POSTGRES_USER=\"postgres\""
+	echo "POSTGRES_PASSWORD=\"$PASSWORD\""
+} >>./docker/env/postgres.env
+
+{
+	echo "PGADMIN_DEFAULT_EMAIL=\"$EMAIL\""
+	echo "PGADMIN_DEFAULT_PASSWORD=\"$PASSWORD\""
+	echo "PGADMIN_CONFIG_SERVER_MODE=\"False\""
+} >>./docker/env/pgadmin.env
+
+# Posting
+rm -rf ./.posting/.env
+
+echo "API_URL=\"http://localhost:8000\"" >>./.posting/.env
