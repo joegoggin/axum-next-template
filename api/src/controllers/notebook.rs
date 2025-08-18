@@ -28,7 +28,7 @@ impl NotebookController {
         let notebook_row = query_as!(
             NotebookRow,
             r#"
-            INSERT INTO notebook (title, color)
+            INSERT INTO Notebook (title, color)
             VALUES ($1, $2)
             RETURNING id, title, color, created_at, modified_at 
             "#,
