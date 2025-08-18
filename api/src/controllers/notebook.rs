@@ -2,7 +2,7 @@ use axum::{Extension, Json};
 use sqlx::{query, query_as};
 
 use crate::{
-    core::error::server_error_response::{ServerErrorResponse, ServerResult},
+    core::error::server_error_response::ServerResult,
     middleware::notebook::NotebookExt,
     models::notebook::{Notebook, NotebookRow, NotebookWithNoteRow, Notebooks, ToNotebooks},
     requests::notebook::{CreateNotebookRequest, UpdateNotebookRequest},
