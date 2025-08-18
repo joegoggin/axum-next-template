@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use axum::{Json, http::StatusCode, response::IntoResponse};
 use log::error;
@@ -40,11 +40,11 @@ impl ServerErrorResponse {
 
     pub fn new_internal_server_error<T>(error: T) -> Self
     where
-        T: ToString,
+        T: Display,
     {
         let mut errors = Vec::new();
 
-        error!("Error: {}", error.to_string());
+        error!("Error: {}", error);
 
         errors.push(ServerError::new(None, "Something went wrong."));
 
