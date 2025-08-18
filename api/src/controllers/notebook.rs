@@ -111,7 +111,7 @@ impl NotebookController {
                 new_notebook.notes = notebook.notes.clone();
 
                 let response = NotebookWithMessageResponse {
-                    notebook,
+                    notebook: new_notebook,
                     message: "Successfully updated Notebook.".to_string(),
                 };
 
