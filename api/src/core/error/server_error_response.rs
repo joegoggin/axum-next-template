@@ -67,9 +67,15 @@ impl IntoResponse for ServerErrorResponse {
 
 impl From<sqlx::Error> for ServerErrorResponse {
     fn from(value: sqlx::Error) -> Self {
-        let error_message = format!("SQLx: {}", value);
-
-        ServerErrorResponse::new_internal_server_error(error_message)
+        match value {
+            sqlx::Error::RowNotFound => {
+                ServerErrorResponse::new_with_message(StatusCode::NOT_FOUND, "Resource not found.")
+            }
+            e => {
+                let error_message = format!("SQLx: {e}");
+                ServerErrorResponse::new_internal_server_error(error_message)
+            }
+        }
     }
 }
 
