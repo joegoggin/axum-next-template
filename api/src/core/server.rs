@@ -1,6 +1,5 @@
 use anyhow::Error;
 use axum::serve;
-use sqlx::PgPool;
 use tokio::net::TcpListener;
 
 use crate::{routes::main::MainRouter, utils::terminal_command::TerminalCommand};
@@ -62,10 +61,17 @@ impl Server {
     }
 
     async fn start_server(&self) -> AppResult<()> {
-        Logger::log_success("Server running on port 8000");
+        Logger::log_success("Server Running On Port 8000");
+
+        let db = sqlx::postgres::PgPoolOptions::new()
+            .max_connections(10)
+            .acquire_timeout(std::time::Duration::from_secs(15))
+            .connect(&self.env.database_url)
+            .await?;
+
+        sqlx::migrate!().run(&db).await?;
 
         let listener = TcpListener::bind("0.0.0.0:8000").await?;
-        let db = PgPool::connect(&self.env.database_url).await?;
         let router = MainRouter::new(db);
 
         serve(listener, router).await?;
