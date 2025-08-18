@@ -120,7 +120,7 @@ impl NotebookController {
             Err(error) => {
                 tx.rollback().await?;
 
-                Err(ServerErrorResponse::new_internal_server_error(error))
+                Err(error.into())
             }
         }
     }
