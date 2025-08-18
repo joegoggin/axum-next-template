@@ -81,9 +81,9 @@ impl From<sqlx::Error> for ServerErrorResponse {
 
 impl From<uuid::Error> for ServerErrorResponse {
     fn from(value: uuid::Error) -> Self {
-        let error_message = format!("UUID: {}", value);
+        let error_message = format!("Invalid UUID: {}", value);
 
-        ServerErrorResponse::new_internal_server_error(error_message)
+        ServerErrorResponse::new_with_message(StatusCode::BAD_REQUEST, error_message)
     }
 }
 
