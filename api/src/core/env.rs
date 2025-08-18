@@ -55,8 +55,8 @@ impl Env {
 
     fn get_var(var: &str) -> AppResult<String> {
         match env::var(var) {
-            Ok(value) => Ok(value),
-            Err(_) => {
+            Ok(value) if !value.trim().is_empty() => Ok(value),
+            _ => {
                 let error_message = format!("`{}` environment variable not set.", var);
 
                 Err(Error::msg(error_message))
