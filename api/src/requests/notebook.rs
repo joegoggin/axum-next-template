@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Validate)]
 pub struct CreateNotebookRequest {
+    #[validate(length(min = 1))]
     pub title: String,
     pub color: Option<String>,
 }

@@ -2,9 +2,12 @@ use axum::{Extension, Json, http::StatusCode};
 use sqlx::{query, query_as};
 
 use crate::{
-    core::error::{
-        server_error::ServerError,
-        server_error_response::{ServerErrorResponse, ServerResult},
+    core::{
+        error::{
+            server_error::ServerError,
+            server_error_response::{ServerErrorResponse, ServerResult},
+        },
+        validated_json::ValidatedJson,
     },
     middleware::note::NoteExt,
     models::note::{Note, Notes},
@@ -19,7 +22,7 @@ pub struct NoteController;
 impl NoteController {
     pub async fn create_note(
         Extension(db): DBExt,
-        Json(req_body): Json<CreateNoteRequest>,
+        ValidatedJson(req_body): ValidatedJson<CreateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
         let mut tx = db.begin().await?;
 

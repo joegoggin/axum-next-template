@@ -9,6 +9,7 @@ pub struct CreateNoteRequest {
     #[validate(length(min = 1))]
     pub content: String,
     pub color: Option<String>,
+    #[serde(rename = "nodebookId")]
     pub notebook_id: Uuid,
 }
 
@@ -17,5 +18,6 @@ pub struct UpdateNoteRequest {
     pub title: Option<String>,
     pub content: Option<String>,
     pub color: Option<String>,
+    #[serde(rename = "notebookId")]
     pub notebook_id: Option<Uuid>,
 }
