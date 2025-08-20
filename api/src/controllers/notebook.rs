@@ -19,11 +19,7 @@ impl NotebookController {
         ValidatedJson(req_body): ValidatedJson<CreateNotebookRequest>,
     ) -> ServerResult<Json<NotebookWithMessageResponse>> {
         const DEFAULT_COLOR: &str = "#4b98ff";
-
-        let color = match req_body.color {
-            Some(color) => color,
-            None => DEFAULT_COLOR.to_string(),
-        };
+        let color = req_body.color.unwrap_or_else(|| DEFAULT_COLOR.to_string());
 
         let notebook_row = query_as!(
             NotebookRow,

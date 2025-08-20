@@ -24,6 +24,9 @@ impl NoteController {
         Extension(db): DBExt,
         ValidatedJson(req_body): ValidatedJson<CreateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
+        const DEFAULT_COLOR: &str = "#4b98ff";
+        let color = req_body.color.unwrap_or_else(|| DEFAULT_COLOR.to_string());
+
         let mut tx = db.begin().await?;
 
         let row = query!(
@@ -59,7 +62,7 @@ impl NoteController {
             "#,
             req_body.title,
             req_body.content,
-            req_body.color,
+            color,
             req_body.notebook_id
         )
         .fetch_one(&mut *tx)
