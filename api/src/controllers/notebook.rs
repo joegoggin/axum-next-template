@@ -2,7 +2,7 @@ use axum::{Extension, Json};
 use sqlx::{query, query_as};
 
 use crate::{
-    core::error::server_error_response::ServerResult,
+    core::{error::server_error_response::ServerResult, validated_json::ValidatedJson},
     middleware::notebook::NotebookExt,
     models::notebook::{Notebook, NotebookRow, NotebookWithNoteRow, Notebooks, ToNotebooks},
     requests::notebook::{CreateNotebookRequest, UpdateNotebookRequest},
@@ -16,14 +16,10 @@ pub struct NotebookController;
 impl NotebookController {
     pub async fn create_notebook(
         Extension(db): DBExt,
-        Json(req_body): Json<CreateNotebookRequest>,
+        ValidatedJson(req_body): ValidatedJson<CreateNotebookRequest>,
     ) -> ServerResult<Json<NotebookWithMessageResponse>> {
         const DEFAULT_COLOR: &str = "#4b98ff";
-
-        let color = match req_body.color {
-            Some(color) => color,
-            None => DEFAULT_COLOR.to_string(),
-        };
+        let color = req_body.color.unwrap_or_else(|| DEFAULT_COLOR.to_string());
 
         let notebook_row = query_as!(
             NotebookRow,

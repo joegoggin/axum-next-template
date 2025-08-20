@@ -2,9 +2,12 @@ use axum::{Extension, Json, http::StatusCode};
 use sqlx::{query, query_as};
 
 use crate::{
-    core::error::{
-        server_error::ServerError,
-        server_error_response::{ServerErrorResponse, ServerResult},
+    core::{
+        error::{
+            server_error::ServerError,
+            server_error_response::{ServerErrorResponse, ServerResult},
+        },
+        validated_json::ValidatedJson,
     },
     middleware::note::NoteExt,
     models::note::{Note, Notes},
@@ -19,8 +22,11 @@ pub struct NoteController;
 impl NoteController {
     pub async fn create_note(
         Extension(db): DBExt,
-        Json(req_body): Json<CreateNoteRequest>,
+        ValidatedJson(req_body): ValidatedJson<CreateNoteRequest>,
     ) -> ServerResult<Json<NoteWithMessageResponse>> {
+        const DEFAULT_COLOR: &str = "#4b98ff";
+        let color = req_body.color.unwrap_or_else(|| DEFAULT_COLOR.to_string());
+
         let mut tx = db.begin().await?;
 
         let row = query!(
@@ -56,7 +62,7 @@ impl NoteController {
             "#,
             req_body.title,
             req_body.content,
-            req_body.color,
+            color,
             req_body.notebook_id
         )
         .fetch_one(&mut *tx)
